@@ -3,8 +3,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.opencsv.*;
 import com.opencsv.bean.*;
-import com.opencsv.exceptions.*;
 
+import org.w3c.dom.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -15,8 +17,43 @@ public class Main {
         String fileName = "data.csv";
         List<Employee> list = parseCSV(columnMapping, fileName);
         String json = listToJson(list);
-        System.out.println(json);
         writeString(json, "data.json");
+
+//        Задача 2: XML - JSON парсер
+        List<Employee> list2 = parseXML("data.xml");
+        String json2 = listToJson(list2);
+        writeString(json2, "data2.json");
+    }
+
+    public static List<Employee> parseXML(String fileName) {
+        List<Employee> employees = new ArrayList<>();
+
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(new File(fileName));
+
+            Node root = doc.getDocumentElement();
+            NodeList nodeList = root.getChildNodes();
+
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Node node = nodeList.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element element = (Element) node;
+
+                    int id = Integer.parseInt(element.getElementsByTagName("id").item(0).getTextContent());
+                    String firstName = element.getElementsByTagName("firstName").item(0).getTextContent();
+                    String lastName = element.getElementsByTagName("lastName").item(0).getTextContent();
+                    String country = element.getElementsByTagName("country").item(0).getTextContent();
+                    int age = Integer.parseInt(element.getElementsByTagName("age").item(0).getTextContent());
+
+                    employees.add(new Employee(id, firstName, lastName, country, age));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return employees;
     }
 
     private static void writeString(String json, String fileName) {
