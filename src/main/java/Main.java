@@ -1,12 +1,10 @@
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.opencsv.*;
 import com.opencsv.bean.*;
 
 import org.w3c.dom.*;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.*;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -23,6 +21,30 @@ public class Main {
         List<Employee> list2 = parseXML("data.xml");
         String json2 = listToJson(list2);
         writeString(json2, "data2.json");
+
+//        Задача 3: JSON парсер
+        String json3 = readString("data.json");
+        List<Employee> list3 = jsonToList(json3);
+        list3.forEach(System.out::println);
+    }
+
+    private static List<Employee> jsonToList(String json) {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        return gson.fromJson(json, new TypeToken<List<Employee>>() {}.getType());
+    }
+
+    private static String readString(String fileName) {
+        StringBuilder jsonText = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String s;
+            while ((s = br.readLine()) != null) {
+                jsonText.append(s);
+            }
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return jsonText.toString();
     }
 
     public static List<Employee> parseXML(String fileName) {
