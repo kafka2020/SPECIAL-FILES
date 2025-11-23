@@ -12,6 +12,7 @@ repositories {
 dependencies {
     implementation("com.opencsv:opencsv:5.10")
     implementation("com.google.code.gson:gson:2.13.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
 }
 
 tasks.test {

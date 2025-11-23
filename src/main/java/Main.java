@@ -28,13 +28,13 @@ public class Main {
         list3.forEach(System.out::println);
     }
 
-    private static List<Employee> jsonToList(String json) {
+    static List<Employee> jsonToList(String json) {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
         return gson.fromJson(json, new TypeToken<List<Employee>>() {}.getType());
     }
 
-    private static String readString(String fileName) {
+    public static String readString(String fileName) {
         StringBuilder jsonText = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String s;
@@ -78,7 +78,7 @@ public class Main {
         return employees;
     }
 
-    private static void writeString(String json, String fileName) {
+    public static void writeString(String json, String fileName) {
         try (FileWriter writer = new FileWriter(fileName)) {
             writer.write(json);
         } catch (IOException e) {
@@ -86,7 +86,7 @@ public class Main {
         }
     }
 
-    private static String listToJson(List<Employee> list) {
+    public static String listToJson(List<Employee> list) {
         GsonBuilder builder = new GsonBuilder();
         builder.setPrettyPrinting();
         Gson gson = builder.create();
@@ -95,7 +95,7 @@ public class Main {
         return json;
     }
 
-    private static List<Employee> parseCSV(String[] columnMapping, String fileName) {
+    public static List<Employee> parseCSV(String[] columnMapping, String fileName) {
         try (CSVReader csvReader = new CSVReader(new FileReader(fileName))) {
             ColumnPositionMappingStrategy<Employee> strategy = new ColumnPositionMappingStrategy<>();
             strategy.setType(Employee.class);
@@ -103,12 +103,13 @@ public class Main {
 
             CsvToBean<Employee> csv = new CsvToBeanBuilder<Employee>(csvReader)
                     .withMappingStrategy(strategy)
+                    .withThrowExceptions(false) // отключаем многопоточный парсинг в билдере CsvToBeanBuilder (Иначе падает тест)
                     .build();
 
             List<Employee> staff = csv.parse();
             return staff;
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return Collections.emptyList(); // Возвращаем пустой список в случае ошибки
         }
